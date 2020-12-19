@@ -5,16 +5,16 @@
         <input type="text" v-model="description">
     </form>
     <ul>
-      <li v-for="todo in todos" :key="todo.id" :data-id="todo.id" :data-created="todo.createdAt">
-        <input type="checkbox" :checked="todo.isComplete" @change="completeTodo(todo.id)"> {{todo.description}}
+      <li v-for="todo in todos" :key="todo.id" :class="{done: todo.isComplete}" :data-id="todo.id" :data-created="todo.createdAt">
+        <input type="checkbox" :checked="todo.isComplete" @change="completeTodo(todo)"> {{todo.description}}
       </li>
     </ul>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed } from 'vue';
-import { useStore } from 'vuex';
+import { defineComponent, ref, computed, onMounted } from 'vue';
+import { useStore, MutationTypes, ActionTypes, Todo } from "../store";
 import { format } from 'date-fns'
 
 export default defineComponent({
@@ -24,25 +24,25 @@ export default defineComponent({
 
   setup() {
     const store = useStore();
-
-    const description = ref(null);
-
-    const generateId = (): number => {
-      return store.state.todos.length + 1
-    }
+    const description = ref('');
 
     const submitTodo = (): void => {
       if (!description.value) {
         return;
       }
 
-      store.dispatch("addTodo", {id: generateId(), description: description.value, isComplete: false, createdAt: format(new Date(), 'MM/dd/yyyy')})
-      description.value = null;
+      store.dispatch(ActionTypes.ADD_TODO, {description: description.value, isComplete: false, createdAt: format(new Date(), 'MM/dd/yyyy'), completedAt: ''})
+      description.value = '';
     }
 
-    const completeTodo = (todoId: number) => {
-      store.dispatch("completeTodo", todoId)
+    const completeTodo = (todo: Todo): void => {
+      store.dispatch(ActionTypes.COMPLETED_TODO, todo)
+
     }
+
+    onMounted(() => {
+      store.dispatch(ActionTypes.GET_TODOS);
+    })
 
     return {
       todos: computed(() => store.state.todos),
@@ -54,6 +54,5 @@ export default defineComponent({
 });
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
 </style>
