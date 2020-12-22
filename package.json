@@ -37,6 +37,7 @@
     "node-sass": "^4.12.0",
     "sass-loader": "^8.0.2",
     "typescript": "~3.9.3",
+    "vue-cli-plugin-tailwind": "~2.0.1",
     "vue-jest": "^5.0.0-0"
   }
 }
